@@ -75,10 +75,11 @@ input,textarea{border-radius:12px;padding:12px}
 var FB={apiKey:"AIzaSyCqQ8P0-OtpWN8rkeJNfJIiGDLTW6ZMeKw",authDomain:"carpintaria-ce2f0.firebaseapp.com",projectId:"carpintaria-ce2f0",storageBucket:"carpintaria-ce2f0.firebasestorage.app",messagingSenderId:"972271168607",appId:"1:972271168607:web:8558b4d33c47abe66b7fea"};
 var K='obras_v1',S=[],view='list',cur=null,filt='all',delArm=false;
 try{S=JSON.parse(localStorage.getItem(K)||'[]')}catch(e){S=[]}
-var db=null,usr=null,ref=null,tmr=null,unsub=null,dirty=false;
+var db=null,usr=null,ref=null,tmr=null,unsub=null,dirty=false,sync='Modo local (sem sincronização)';
+function setSync(m){sync=m;var e=document.getElementById('sync');if(e)e.textContent=m}
 function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
  if(!ref)return;dirty=true;clearTimeout(tmr);
- tmr=setTimeout(function(){ref.set({json:JSON.stringify(S),t:Date.now()}).then(function(){dirty=false}).catch(function(){})},500)}
+ tmr=setTimeout(function(){ref.set({json:JSON.stringify(S),t:Date.now()}).then(function(){dirty=false;setSync('Sincronizado')}).catch(function(x){setSync('Erro ao guardar na nuvem: '+(x.code||x.message))})},500)}
 function uid(){return Math.random().toString(36).slice(2,9)}
 function eur(n){return new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(+n||0)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -94,7 +95,7 @@ function card(o){return '<div class="card '+(o.adj?'adj':'pend')+'" data-open="'
 function list(){
  var L=S.filter(function(o){return filt==='all'||(filt==='adj'?o.adj:!o.adj)});
  var chips=[['all','Todas'],['adj','Adjudicadas'],['pend','Por adjudicar']].map(function(c){return '<button class="chip'+(filt===c[0]?' on':'')+'" data-filt="'+c[0]+'">'+c[1]+'</button>'}).join('');
- return '<div class="hero">'+(usr?'<button class="lnk" data-act="out">Sair</button>':'')+'<small>Gestão de obras</small><h1>As minhas obras</h1><p>'+S.length+(S.length===1?' obra, ':' obras, ')+S.filter(function(o){return o.adj}).length+' adjudicada(s)</p></div><div class="chips">'+chips+'</div>'+(L.length?L.map(card).join(''):'<p class="empty">Ainda não há obras aqui.<br>Toque em “Nova obra” para começar.</p>')+'<button class="fab" data-act="new">+ Nova obra</button>'}
+ return '<div class="hero">'+(usr?'<button class="lnk" data-act="out">Sair</button>':'')+'<small>Gestão de obras</small><h1>As minhas obras</h1><p>'+S.length+(S.length===1?' obra, ':' obras, ')+S.filter(function(o){return o.adj}).length+' adjudicada(s)</p><p class="hint" id="sync" style="color:#ffe08a;margin:4px 0 0">'+sync+'</p></div><div class="chips">'+chips+'</div>'+(L.length?L.map(card).join(''):'<p class="empty">Ainda não há obras aqui.<br>Toque em “Nova obra” para começar.</p>')+'<button class="fab" data-act="new">+ Nova obra</button>'}
 
 function tots(o){return '<div class="row"><span>Valor acordado</span><span>'+eur(o.valor)+'</span></div><div class="row"><span>Extras</span><span>'+eur(extras(o))+'</span></div><div class="row big"><span>Total da obra</span><span>'+eur(tot(o))+'</span></div>'}
 
@@ -158,7 +159,7 @@ document.addEventListener('click',function(e){
 });
 function boot(){
  if(typeof firebase==='undefined'||FB.apiKey.indexOf('COLE')===0){view='list';render();return}
- firebase.initializeApp(FB);
+ firebase.initializeApp(FB);sync='A ligar…';
  window.auth=firebase.auth();db=firebase.firestore();
  try{db.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}
  window.auth.onAuthStateChanged(function(u){
@@ -167,12 +168,13 @@ function boot(){
   usr=u.uid;ref=db.collection('users').doc(usr).collection('data').doc('obras');
   view='list';render();
   unsub=ref.onSnapshot(function(snap){
+   setSync(snap.metadata.fromCache?'A aguardar ligação…':'Sincronizado');
    if(snap.metadata.hasPendingWrites||dirty||view==='form')return;
    if(snap.exists){try{S=JSON.parse(snap.data().json)}catch(e){}}
    else if(S.length){save()}
    try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
    if(view==='list')render();
-  });
+  },function(x){setSync('Erro a ler da nuvem: '+(x.code||x.message))});
  });
 }
 boot();
