@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gestão de Obras</title>
+<style>
+:root{--bg:#edf0ea;--card:#fff;--tx:#1d2b24;--mut:#66756c;--pine:#1f3a2e;--pen:#f2b800;--on-pen:#2a2100;--bd:#d5dbd2;--ok:#1f7a48;--okbg:#dff1e6;--wn:#8a5a00;--wnbg:#fbeccb;--red:#b3361f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141b17;--card:#1d2722;--tx:#e8eee9;--mut:#93a39a;--pine:#9fd1b5;--bd:#2f3d36;--ok:#7bd3a1;--okbg:#1c3a2a;--wn:#f2c14e;--wnbg:#3a2f12;--red:#ff8a73}}
+:root[data-theme="dark"]{--bg:#141b17;--card:#1d2722;--tx:#e8eee9;--mut:#93a39a;--pine:#9fd1b5;--bd:#2f3d36;--ok:#7bd3a1;--okbg:#1c3a2a;--wn:#f2c14e;--wnbg:#3a2f12;--red:#ff8a73}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:560px;margin:0 auto;padding:16px 16px 110px}
+h1{font-size:26px;margin:8px 0 14px;color:var(--pine);letter-spacing:-.5px}
+h2{font-size:17px;margin:24px 0 8px;color:var(--pine);border-left:5px solid var(--pen);padding-left:9px}
+.sum{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.sum div{background:var(--pine);color:var(--bg);border-radius:10px;padding:10px 8px}
+.sum b{display:block;font-size:15px}.sum span{font-size:12px;opacity:.8}
+.chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px}
+.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:20px;padding:8px 14px;font:inherit;white-space:nowrap}
+.chip.on{background:var(--pen);border-color:var(--pen);color:var(--on-pen);font-weight:600}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:10px;cursor:pointer}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mut{color:var(--mut);font-size:14px}
+.tag{font-size:12px;font-weight:600;padding:3px 9px;border-radius:12px;white-space:nowrap}
+.tag.ok{background:var(--okbg);color:var(--ok)}.tag.wn{background:var(--wnbg);color:var(--wn)}
+.bar{height:6px;background:var(--bd);border-radius:3px;margin:9px 0}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:3px}
+.empty{color:var(--mut);text-align:center;margin:40px 0}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--pen);color:var(--on-pen);border:0;border-radius:28px;padding:15px 26px;font:inherit;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+label{display:block;font-size:14px;color:var(--mut);margin-bottom:10px}
+input,textarea{display:block;width:100%;margin-top:4px;padding:11px;font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--pen);outline-offset:1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sw{display:flex;align-items:center;gap:10px;color:var(--tx);font-size:16px;font-weight:600;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:12px}
+.sw input{width:22px;height:22px;margin:0}
+.fr{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.fr input{margin:0}.fr input[type=checkbox]{width:26px;height:26px;flex:none}
+.fr .v{width:110px;flex:none}
+.x{border:0;background:none;color:var(--red);font-size:18px;padding:6px}
+.sec{border:1px solid var(--pine);background:none;color:var(--pine);border-radius:8px;padding:11px;font:inherit;font-weight:600;width:100%}
+.lnk{border:0;background:none;color:var(--pine);font:inherit;font-weight:600;padding:8px 0}
+.tot{background:var(--pine);color:var(--bg);border-radius:10px;padding:12px;margin-top:20px}
+.tot .row{padding:2px 0}.tot .big{font-size:20px;font-weight:700;border-top:1px solid rgba(255,255,255,.3);margin-top:6px;padding-top:8px}
+.del{margin-top:24px;width:100%;border:1px solid var(--red);color:var(--red);background:none;border-radius:8px;padding:12px;font:inherit}
+.hint{font-size:13px;color:var(--mut);margin:10px 0 0}
+.hero{background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.28)),repeating-linear-gradient(92deg,#5d402d 0 7px,#54372a 7px 9px,#664834 9px 19px,#573a29 19px 21px);color:#fff;margin:-16px -16px 18px;padding:26px 20px 28px;border-radius:0 0 28px 28px;box-shadow:0 8px 20px rgba(40,25,15,.3)}
+.hero h1{color:#fff;margin:4px 0;font-size:30px;text-shadow:0 2px 4px rgba(0,0,0,.35)}
+.hero small{opacity:.8;font-size:14px}.hero p{margin:0;opacity:.88}
+.hero .lnk{color:#ffe08a;padding:0 0 6px}
+.chip{padding:9px 16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card{border:0;border-left:7px solid var(--wn);border-radius:18px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,.1)}
+.card.adj{border-left-color:var(--ok)}
+.card .row b{font-size:18px}
+.card .row b.val{font-size:20px;color:var(--pine)}
+.seg{display:flex;gap:4px;margin:12px 0}.seg i{flex:1;height:8px;border-radius:4px;background:var(--bd)}.seg i.on{background:var(--ok)}
+.fase{font-size:14px;color:var(--mut)}
+input,textarea{border-radius:12px;padding:12px}
+.sec{border-radius:12px}
+.sw{border-radius:12px}
+.tot{background:linear-gradient(135deg,#4a3224,#6e4d35);color:#fff;border-radius:16px;padding:16px}
+.tot .big{font-size:22px}
+.fab{box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.hero .lnk[data-act=out]{float:right}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* Configuração do Firebase */
+var FB={apiKey:"AIzaSyCqQ8P0-OtpWN8rkeJNfJIiGDLTW6ZMeKw",authDomain:"carpintaria-ce2f0.firebaseapp.com",projectId:"carpintaria-ce2f0",storageBucket:"carpintaria-ce2f0.firebasestorage.app",messagingSenderId:"972271168607",appId:"1:972271168607:web:8558b4d33c47abe66b7fea"};
+var K='obras_v1',S=[],view='list',cur=null,filt='all',delArm=false;
+try{S=JSON.parse(localStorage.getItem(K)||'[]')}catch(e){S=[]}
+var db=null,uid=null,ref=null,tmr=null,unsub=null,dirty=false;
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
+ if(!ref)return;dirty=true;clearTimeout(tmr);
+ tmr=setTimeout(function(){ref.set({json:JSON.stringify(S),t:Date.now()}).then(function(){dirty=false}).catch(function(){})},500)}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function eur(n){return new Intl.NumberFormat('pt-PT',{style:'currency',currency:'EUR'}).format(+n||0)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function extras(o){return o.extras.reduce(function(a,e){return a+(+e.v||0)},0)}
+function tot(o){return (+o.valor||0)+extras(o)}
+function fase(o){if(!o.fases.length)return'Sem fases';var f=o.fases.find(function(x){return!x.ok});return f?(f.n||'Fase sem nome'):'Concluída'}
+function prog(o){return o.fases.length?Math.round(o.fases.filter(function(x){return x.ok}).length/o.fases.length*100):0}
+function dt(d){return d.split('-').reverse().join('/')}
+function sum(l){return eur(l.reduce(function(a,o){return a+tot(o)},0))}
+
+function card(o){return '<div class="card '+(o.adj?'adj':'pend')+'" data-open="'+o.id+'"><div class="row"><b>'+esc(o.nome||'Obra sem nome')+'</b><span class="tag '+(o.adj?'ok':'wn')+'">'+(o.adj?'Adjudicada':'Por adjudicar')+'</span></div><div class="mut">'+esc(o.cliente||'Sem cliente')+(o.inicio?' · início '+dt(o.inicio):'')+'</div><div class="seg">'+o.fases.map(function(f){return '<i class="'+(f.ok?'on':'')+'"></i>'}).join('')+'</div><div class="row"><span class="fase">'+esc(fase(o))+'</span><b class="val">'+eur(tot(o))+'</b></div></div>'}
+
+function list(){
+ var L=S.filter(function(o){return filt==='all'||(filt==='adj'?o.adj:!o.adj)});
+ var chips=[['all','Todas'],['adj','Adjudicadas'],['pend','Por adjudicar']].map(function(c){return '<button class="chip'+(filt===c[0]?' on':'')+'" data-filt="'+c[0]+'">'+c[1]+'</button>'}).join('');
+ return '<div class="hero">'+(uid?'<button class="lnk" data-act="out">Sair</button>':'')+'<small>Gestão de obras</small><h1>As minhas obras</h1><p>'+S.length+(S.length===1?' obra, ':' obras, ')+S.filter(function(o){return o.adj}).length+' adjudicada(s)</p></div><div class="chips">'+chips+'</div>'+(L.length?L.map(card).join(''):'<p class="empty">Ainda não há obras aqui.<br>Toque em “Nova obra” para começar.</p>')+'<button class="fab" data-act="new">+ Nova obra</button>'}
+
+function tots(o){return '<div class="row"><span>Valor acordado</span><span>'+eur(o.valor)+'</span></div><div class="row"><span>Extras</span><span>'+eur(extras(o))+'</span></div><div class="row big"><span>Total da obra</span><span>'+eur(tot(o))+'</span></div>'}
+
+function inp(k,l,o,x){return '<label>'+l+'<input data-k="'+k+'" value="'+esc(o[k])+'" '+(x||'')+'></label>'}
+
+function form(){
+ var o=S.find(function(x){return x.id===cur});
+ var fs=o.fases.map(function(f,i){return '<div class="fr"><input type="checkbox" data-fi="'+i+'" data-f="ok" aria-label="Fase concluída"'+(f.ok?' checked':'')+'><input data-fi="'+i+'" data-f="n" value="'+esc(f.n)+'" placeholder="Nome da fase"><button class="x" data-delf="'+i+'" aria-label="Apagar fase">✕</button></div>'}).join('');
+ var es=o.extras.map(function(e,i){return '<div class="fr"><input data-ei="'+i+'" data-f="d" value="'+esc(e.d)+'" placeholder="Descrição do extra"><input class="v" type="number" inputmode="decimal" data-ei="'+i+'" data-f="v" value="'+esc(e.v)+'" placeholder="€"><button class="x" data-dele="'+i+'" aria-label="Apagar extra">✕</button></div>'}).join('');
+ return '<div class="hero"><button class="lnk" data-act="back">‹ Voltar às obras</button><h1>'+esc(o.nome||'Nova obra')+'</h1></div>'
+ +inp('nome','Nome da obra',o,'placeholder="Ex.: Cozinha à medida"')+inp('cliente','Cliente',o)+inp('tel','Contacto',o,'type="tel"')+inp('morada','Morada da obra',o)
+ +'<div class="two"><label>Data de início<input type="date" data-k="inicio" value="'+esc(o.inicio)+'"></label><label>Valor acordado (€)<input type="number" inputmode="decimal" data-k="valor" value="'+esc(o.valor)+'"></label></div>'
+ +'<label class="sw"><input type="checkbox" data-k="adj"'+(o.adj?' checked':'')+'>Obra adjudicada</label>'
+ +'<h2>O que é preciso fazer</h2><textarea data-k="desc" rows="4" placeholder="Descreva o trabalho, medidas, materiais…">'+esc(o.desc)+'</textarea>'
+ +'<h2>Fases da obra</h2>'+fs+'<div class="two"><button class="sec" data-act="addf">+ Fase</button><button class="sec" data-act="tpl">Fases tipo</button></div><p class="hint">Marque a caixa quando a fase estiver concluída. A fase atual é a primeira por concluir.</p>'
+ +'<h2>Extras</h2>'+es+'<button class="sec" data-act="adde">+ Extra</button>'
+ +'<div class="tot" id="tots">'+tots(o)+'</div>'
+ +'<button class="del" data-act="del">'+(delArm?'Toque outra vez para apagar':'Apagar obra')+'</button>'}
+
+function loginHTML(){return '<div class="hero"><small>Gestão de obras</small><h1>Entrar</h1><p>Aceda às suas obras em qualquer aparelho.</p></div><label>Email<input id="em" type="email" autocomplete="email"></label><label>Palavra-passe<input id="pw" type="password" autocomplete="current-password"></label><p id="err" class="hint"></p><button class="sec" data-act="login">Entrar</button><p></p><button class="sec" data-act="signup">Criar conta (só na primeira vez)</button>'}
+function render(){document.getElementById('app').innerHTML=view==='login'?loginHTML():view==='list'?list():form()}
+
+document.addEventListener('input',function(e){
+ var t=e.target,o=S.find(function(x){return x.id===cur});
+ if(!o||view!=='form')return;
+ var v=t.type==='checkbox'?t.checked:t.value;
+ if(t.dataset.k)o[t.dataset.k]=v;
+ else if(t.dataset.fi!==undefined)o.fases[+t.dataset.fi][t.dataset.f]=v;
+ else if(t.dataset.ei!==undefined)o.extras[+t.dataset.ei][t.dataset.f]=v;
+ else return;
+ save();var T=document.getElementById('tots');if(T)T.innerHTML=tots(o);
+});
+
+document.addEventListener('click',function(e){
+ var t=e.target.closest('[data-act],[data-open],[data-filt],[data-delf],[data-dele]');
+ if(!t)return;
+ var d=t.dataset,o=S.find(function(x){return x.id===cur});
+ if(/^(login|signup|out)$/.test(d.act))return;
+ if(d.filt){filt=d.filt}
+ else if(d.open){cur=d.open;view='form';delArm=false}
+ else if(d.delf!==undefined){o.fases.splice(+d.delf,1);save()}
+ else if(d.dele!==undefined){o.extras.splice(+d.dele,1);save()}
+ else if(d.act==='new'){o={id:uid(),nome:'',cliente:'',tel:'',morada:'',inicio:'',valor:'',adj:false,desc:'',fases:[],extras:[]};S.unshift(o);cur=o.id;view='form';delArm=false;save()}
+ else if(d.act==='back'){if(o&&!o.nome&&!o.cliente){S=S.filter(function(x){return x.id!==cur});save()}view='list';save()}
+ else if(d.act==='addf'){o.fases.push({n:'',ok:false});save()}
+ else if(d.act==='tpl'){['Medição','Orçamento aprovado','Fabrico','Montagem','Acabamentos','Entrega'].forEach(function(n){o.fases.push({n:n,ok:false})});save()}
+ else if(d.act==='adde'){o.extras.push({d:'',v:''});save()}
+ else if(d.act==='del'){if(!delArm){delArm=true}else{S=S.filter(function(x){return x.id!==cur});save();view='list';delArm=false}}
+ render();
+ if(d.act==='addf'||d.act==='adde'){var q=document.querySelectorAll(d.act==='addf'?'[data-f="n"]':'[data-f="d"]');if(q.length)q[q.length-1].focus()}
+ else if(d.open||d.act==='new')window.scrollTo(0,0);
+});
+document.addEventListener('click',function(e){
+ var b=e.target.closest('[data-act="login"],[data-act="signup"],[data-act="out"]');
+ if(!b||!window.auth)return;
+ var a=b.dataset.act;
+ if(a==='out'){window.auth.signOut();return}
+ var em=document.getElementById('em').value,pw=document.getElementById('pw').value;
+ var p=a==='login'?window.auth.signInWithEmailAndPassword(em,pw):window.auth.createUserWithEmailAndPassword(em,pw);
+ p.catch(function(x){var m=document.getElementById('err');if(m)m.textContent='Não foi possível entrar: '+x.message});
+});
+function boot(){
+ if(typeof firebase==='undefined'||FB.apiKey.indexOf('COLE')===0){view='list';render();return}
+ firebase.initializeApp(FB);
+ window.auth=firebase.auth();db=firebase.firestore();
+ try{db.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}
+ window.auth.onAuthStateChanged(function(u){
+  if(unsub){unsub();unsub=null}
+  if(!u){uid=null;ref=null;view='login';render();return}
+  uid=u.uid;ref=db.collection('users').doc(uid).collection('data').doc('obras');
+  view='list';render();
+  unsub=ref.onSnapshot(function(snap){
+   if(snap.metadata.hasPendingWrites||dirty||view==='form')return;
+   if(snap.exists){try{S=JSON.parse(snap.data().json)}catch(e){}}
+   else if(S.length){save()}
+   try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
+   if(view==='list')render();
+  });
+ });
+}
+boot();
+</script>
+</body>
+</html>
